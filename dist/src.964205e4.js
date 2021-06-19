@@ -164,12 +164,12 @@ function reloadCSS() {
 }
 
 module.exports = reloadCSS;
-},{"./bundle-url":14}],8:[function(require,module,exports) {
+},{"./bundle-url":14}],6:[function(require,module,exports) {
 
 var reloadCSS = require('_css_loader');
 module.hot.dispose(reloadCSS);
 module.hot.accept(reloadCSS);
-},{"_css_loader":12}],15:[function(require,module,exports) {
+},{"_css_loader":12}],7:[function(require,module,exports) {
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -179,7 +179,7 @@ exports.default = sayHello;
 function sayHello() {
 	alert('hello');
 }
-},{}],6:[function(require,module,exports) {
+},{}],4:[function(require,module,exports) {
 'use strict';
 
 require('./styles.scss');
@@ -548,7 +548,7 @@ var updateLocalStorage = function updateLocalStorage() {
  * thus, this is when we call our state (list items) from local storage into global state variable
  */
 window.onload = readLocalStorageAndPopulateDOM;
-},{"./styles.scss":8,"./utils":15}],7:[function(require,module,exports) {
+},{"./styles.scss":6,"./utils":7}],16:[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 
@@ -577,7 +577,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = '' || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + '58811' + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + '50796' + '/');
   ws.onmessage = function (event) {
     var data = JSON.parse(event.data);
 
@@ -718,5 +718,5 @@ function hmrAccept(bundle, id) {
     return hmrAccept(global.parcelRequire, id);
   });
 }
-},{}]},{},[7,6], null)
+},{}]},{},[16,4], null)
 //# sourceMappingURL=/src.964205e4.map
