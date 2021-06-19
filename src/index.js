@@ -312,9 +312,15 @@ const toggleCompleteItem = (name) => {
 	// console.log(groceryList[name].element);
 	groceryList[name].element.classList.toggle('done-overlay');
 	groceryList[name].isDone = !groceryList[name].isDone;
-	if (groceryList[name].isDone)
-		myDOM.itemCounter.innerText = Number(myDOM.itemCounter.innerText) - 1;
-	else myDOM.itemCounter.innerText = Number(myDOM.itemCounter.innerText) + 1;
+	if (groceryList[name].isDone) {
+		const counter = Number(myDOM.itemCounter.innerText) - 1;
+		myDOM.itemCounter.innerText = counter;
+		if (counter === 0) myDOM.emptyListPlaceholder.style.display = 'block';
+	} else {
+		const counter = Number(myDOM.itemCounter.innerText) + 1;
+		myDOM.itemCounter.innerText = counter;
+		if (counter === 1) myDOM.emptyListPlaceholder.style.display = 'none';
+	}
 
 	// console.log('toggleCompleteItem: ', { groceryList });
 	setTimeout(updateLocalStorage, 0);
@@ -382,7 +388,7 @@ const readLocalStorageAndPopulateDOM = () => {
 				localDataObj[itemName].isDone
 			)
 		);
-		counter++;
+		if (!localDataObj[itemName].isDone) counter++;
 	}
 	myDOM.itemCounter.innerText = counter;
 	if (counter > 0) myDOM.emptyListPlaceholder.style.display = 'none';
