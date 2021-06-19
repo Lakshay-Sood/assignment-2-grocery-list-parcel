@@ -1,5 +1,9 @@
 import './styles.scss';
-// import sayHello from './utils';
+import { getListItemTemplate, addListActionEventListeners } from './utils';
+import {
+	readLocalStorageAndPopulateDOM,
+	updateLocalStorage,
+} from './localStorage';
 
 console.log('ok!');
 // sayHello();
@@ -10,7 +14,7 @@ console.log('ok!');
 // ## Step 3: Helper Functions
 // ## Step 4: Event Handler Functions
 // ## Step 5: State Handlers
-// ## Step 6: Handle Local Storage (for persistence)
+// ## Step 6: Load and Populate from Local Storage
 
 // # Step 1: DOM Elements
 
@@ -38,7 +42,7 @@ const myDOM = {
 // # Step 2: Global State Variables
 /**
  * will hold all list items with their data and reference to DOM node (for faster access)
- * example => groceryList = {
+ * example ==> groceryList = {
  *  'Banana': {
  *    quantity: 2,
  *    unit: 'dozen',
@@ -71,8 +75,13 @@ let editMode = {
 const createListElement = (name, quantity, unit, isDone) => {
 	let listElement = document.createElement('li');
 	if (isDone) listElement.classList.add('done-overlay');
+
 	listElement.innerHTML = getListItemTemplate(name, quantity, unit);
-	addListActionEventListeners(listElement, name);
+	addListActionEventListeners(listElement, name, {
+		toggleCompleteItem,
+		changeFormToEditItem,
+		deleteItem,
+	});
 
 	groceryList[name] = {
 		quantity,
@@ -81,26 +90,6 @@ const createListElement = (name, quantity, unit, isDone) => {
 		isDone,
 	};
 	return listElement;
-};
-
-/**
- * Returns HTML template string; to be inserted into new DOM element
- * @param {string} name Item name
- * @param {number} quantity Item quatity (could be string as well)
- * @param {string} unit Unit in which item is measured
- * @returns HTML_template_string
- */
-const getListItemTemplate = (name, quantity, unit) => {
-	return `<span class="list-item">
-	<span class="list-item-name">${name}</span><span class="quantity-unit">${quantity} ${unit}</span>
-</span>
-	<!-- ! add icons -->
-	<span class="list-action">
-	<span class="done-btn">Done</span>
-	<span class="edit-btn">Edit</span>
-	<span class="del-btn">Del</span>
-	</span>
-`;
 };
 
 /**
@@ -177,23 +166,6 @@ myDOM.form.submitBtn.addEventListener('click', (event) => {
 });
 
 /**
- * helper function for 'createListElement()' to add event listeners
- * @param {DOM_Element} listElement newly created 'li' element so that its buttons could get event listeners
- * @param {string} name ItemName, that acts as key for event handlers
- */
-const addListActionEventListeners = (listElement, name) => {
-	listElement.querySelector('.done-btn').addEventListener('click', () => {
-		toggleCompleteItem(name);
-	});
-	listElement.querySelector('.edit-btn').addEventListener('click', () => {
-		changeFormToEditItem(name);
-	});
-	listElement.querySelector('.del-btn').addEventListener('click', () => {
-		deleteItem(name);
-	});
-};
-
-/**
  * event listen to clear the grocery list
  */
 myDOM.clearListBtn.addEventListener('click', () => {
@@ -229,8 +201,9 @@ const addItem = () => {
 		myDOM.emptyListPlaceholder.style.display = 'none';
 	changeFormToAddNewItem();
 
-	// console.log('addItem: ', { groceryList });
-	setTimeout(updateLocalStorage, 0);
+	setTimeout(() => {
+		updateLocalStorage(groceryList);
+	}, 0);
 };
 
 /**
@@ -253,14 +226,14 @@ const editItem = (prevName) => {
 			addItem();
 			deleteItem(prevName);
 
-			// console.log('editItem: ', { groceryList });
-			setTimeout(updateLocalStorage, 0);
+			setTimeout(() => {
+				updateLocalStorage(groceryList);
+			}, 0);
 			return;
 		}
 		// groceryList[newName] = { ...groceryList[prevName] };
 		groceryList[newName] = Object.assign(groceryList[prevName]);
 		delete groceryList[prevName];
-		// myDOM.itemCounter.innerText = Number(myDOM.itemCounter.innerText) - 1;
 	}
 	groceryList[newName].quantity = Number(newQuantity);
 	groceryList[newName].unit = newUnit;
@@ -269,12 +242,16 @@ const editItem = (prevName) => {
 		newQuantity,
 		newUnit
 	);
-	addListActionEventListeners(groceryList[newName].element, newName);
-	// myDOM.itemCounter.innerText = Number(myDOM.itemCounter.innerText) + 1;
+	addListActionEventListeners(groceryList[newName].element, newName, {
+		toggleCompleteItem,
+		changeFormToEditItem,
+		deleteItem,
+	});
 
-	// console.log('editItem: ', { groceryList });
 	changeFormToAddNewItem();
-	setTimeout(updateLocalStorage, 0);
+	setTimeout(() => {
+		updateLocalStorage(groceryList);
+	}, 0);
 };
 
 /**
@@ -291,8 +268,9 @@ const deleteItem = (name) => {
 		myDOM.emptyListPlaceholder.style.display = 'block';
 	changeFormToAddNewItem();
 
-	// console.log('deleteItem: ', { groceryList });
-	setTimeout(updateLocalStorage, 0);
+	setTimeout(() => {
+		updateLocalStorage(groceryList);
+	}, 0);
 };
 
 /**
@@ -309,7 +287,6 @@ const deleteAllItems = () => {
  * @param {string} name ItemName, acts as the key
  */
 const toggleCompleteItem = (name) => {
-	// console.log(groceryList[name].element);
 	groceryList[name].element.classList.toggle('done-overlay');
 	groceryList[name].isDone = !groceryList[name].isDone;
 	if (groceryList[name].isDone) {
@@ -322,99 +299,17 @@ const toggleCompleteItem = (name) => {
 		if (counter === 1) myDOM.emptyListPlaceholder.style.display = 'none';
 	}
 
-	// console.log('toggleCompleteItem: ', { groceryList });
-	setTimeout(updateLocalStorage, 0);
+	setTimeout(() => {
+		updateLocalStorage(groceryList);
+	}, 0);
 };
 
-// # Step 6: Handle Local Storage (for persistence)
-
-/**
- * NOT using this because its not a reliabe event
- * this event is fired when the window​, the document and its resources are about to be unloaded
- * thus, this is when we save our state (list items) onto local storage for persistence
- */
-// window.onbeforeunload = () => {
-// 	console.log('beforeunload: ', { groceryList });
-// 	setTimeout(updateLocalStorage, 0);
-
-// localStorage.setItem('groceryList', JSON.stringify(newLocalDataObj));
-// };
-
-/**
- * Reads our groceryList from local storage and then populate the DOM list with the data
- */
-const readLocalStorageAndPopulateDOM = () => {
-	const localDataString = localStorage.getItem('groceryList');
-	const localDataObj = JSON.parse(localDataString);
-	// this obj will look something like this
-	// const localDataObj = {
-	// 	'Urad Dal': {
-	// 		quantity: 500,
-	// 		unit: 'gm',
-	// 		isDone: false,
-	// 	},
-	// 	'Banana': {
-	// 		quantity: 2,
-	// 		unit: 'dozen',
-	// 		isDone: true,
-	// 	},
-	// 	'Water Bottle': {
-	// 		quantity: 6,
-	// 		unit: 'nos.',
-	// 		isDone: false,
-	// 	},
-	// 	'Toned Milk': {
-	// 		quantity: 2,
-	// 		unit: 'L',
-	// 		isDone: false,
-	// 	},
-	// };
-
-	// no local storage key found
-	if (!localDataObj) {
-		groceryList = {};
-		myDOM.itemCounter.innerText = 0;
-	}
-
-	// counter to count total items in the list
-	let counter = 0;
-	groceryList = {};
-	for (let itemName in localDataObj) {
-		myDOM.list.append(
-			createListElement(
-				itemName,
-				localDataObj[itemName].quantity,
-				localDataObj[itemName].unit,
-				localDataObj[itemName].isDone
-			)
-		);
-		if (!localDataObj[itemName].isDone) counter++;
-	}
-	myDOM.itemCounter.innerText = counter;
-	if (counter > 0) myDOM.emptyListPlaceholder.style.display = 'none';
-
-	// console.log('onLoad: ', { groceryList });
-};
-
-/**
- * save our state (grocery list items) onto local storage for persistence
- * it is called after each alteration in the groceryList object (because window.onbeforeunload is not always reliable)
- */
-const updateLocalStorage = () => {
-	const newLocalDataObj = {};
-	for (let itemName in groceryList) {
-		newLocalDataObj[itemName] = {
-			quantity: Number(groceryList[itemName].quantity),
-			unit: groceryList[itemName].unit,
-			isDone: groceryList[itemName].isDone,
-		};
-	}
-
-	localStorage.setItem('groceryList', JSON.stringify(newLocalDataObj));
-};
+// # Step 6: Load and Populate from Local Storage
 
 /**
  * this event is fired when the browser load this object
  * thus, this is when we call our state (list items) from local storage into global state variable
  */
-window.onload = readLocalStorageAndPopulateDOM;
+window.onload = () => {
+	readLocalStorageAndPopulateDOM(myDOM, groceryList, createListElement);
+};

@@ -169,12 +169,157 @@ module.exports = reloadCSS;
 var reloadCSS = require('_css_loader');
 module.hot.dispose(reloadCSS);
 module.hot.accept(reloadCSS);
-},{"_css_loader":12}],4:[function(require,module,exports) {
+},{"_css_loader":12}],16:[function(require,module,exports) {
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+exports.getListItemTemplate = getListItemTemplate;
+exports.addListActionEventListeners = addListActionEventListeners;
+/**
+ * returns sanitised string corresponding to input string
+ * @param {string} templateString unsanitsed input string
+ * @returns {string} sanitised input string to prevent XSS attacks
+ */
+function sanitiseHTML(templateString) {
+	var tempDiv = document.createElement('div');
+	tempDiv.innerText = templateString;
+	// console.log(templateString, tempDiv.innerText);
+	return tempDiv.innerHTML;
+}
+
+/**
+ * Returns HTML template string; to be inserted into new DOM element
+ * @param {string} name Item name
+ * @param {number} quantity Item quatity (could be string as well)
+ * @param {string} unit Unit in which item is measured
+ * @returns HTML_template_string
+ */
+function getListItemTemplate(name, quantity, unit) {
+	name = sanitiseHTML(name);
+	quantity = sanitiseHTML(quantity);
+	unit = sanitiseHTML(unit);
+
+	return '<span class="list-item">\n\t<span class="list-item-name">' + name + '</span><span class="quantity-unit">' + quantity + ' ' + unit + '</span>\n</span>\n\t<!-- ! add icons -->\n\t<span class="list-action">\n\t<span class="done-btn">Done</span>\n\t<span class="edit-btn">Edit</span>\n\t<span class="del-btn">Del</span>\n\t</span>\n';
+}
+
+/**
+ * helper function for 'createListElement()' to add event listeners
+ * @param {DOM_Element} listElement newly created 'li' element so that its buttons could get event listeners
+ * @param {string} name ItemName, that acts as key for event handlers
+ * @param {{doneHandler, editHandler, deleteHandler}}	eventHandler	3 event handlers for 3 buttons on the list items
+ */
+function addListActionEventListeners(listElement, name, eventHandler) {
+	listElement.querySelector('.done-btn').addEventListener('click', function () {
+		eventHandler.toggleCompleteItem(name);
+	});
+	listElement.querySelector('.edit-btn').addEventListener('click', function () {
+		eventHandler.changeFormToEditItem(name);
+	});
+	listElement.querySelector('.del-btn').addEventListener('click', function () {
+		eventHandler.deleteItem(name);
+	});
+}
+},{}],19:[function(require,module,exports) {
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+exports.readLocalStorageAndPopulateDOM = readLocalStorageAndPopulateDOM;
+exports.updateLocalStorage = updateLocalStorage;
+// # Handling Local Storage (for persistence)
+
+/**
+ * Reads our groceryList from local storage and then populate the DOM list with the data
+ * @param {Object}	myDOM object of specific DOM elements, required to populate data
+ * @param {Object}	groceryList the main state object of the application
+ * @param {Function}	createListElement a function to create new <li> element and update groceryList
+ */
+function readLocalStorageAndPopulateDOM(myDOM, groceryList, createListElement) {
+	var localDataString = localStorage.getItem('groceryList');
+	var localDataObj = JSON.parse(localDataString);
+	// this obj will look something like this
+	// const localDataObj = {
+	// 	'Urad Dal': {
+	// 		quantity: 500,
+	// 		unit: 'gm',
+	// 		isDone: false,
+	// 	},
+	// 	'Banana': {
+	// 		quantity: 2,
+	// 		unit: 'dozen',
+	// 		isDone: true,
+	// 	},
+	// 	'Water Bottle': {
+	// 		quantity: 6,
+	// 		unit: 'nos.',
+	// 		isDone: false,
+	// 	},
+	// 	'Toned Milk': {
+	// 		quantity: 2,
+	// 		unit: 'L',
+	// 		isDone: false,
+	// 	},
+	// };
+
+	// no local storage key found
+	if (!localDataObj) {
+		groceryList = {};
+		myDOM.itemCounter.innerText = 0;
+	}
+
+	// counter to count total items in the list
+	var counter = 0;
+	groceryList = {};
+	for (var itemName in localDataObj) {
+		myDOM.list.append(createListElement(itemName, localDataObj[itemName].quantity, localDataObj[itemName].unit, localDataObj[itemName].isDone));
+		if (!localDataObj[itemName].isDone) counter++;
+	}
+	myDOM.itemCounter.innerText = counter;
+	if (counter > 0) myDOM.emptyListPlaceholder.style.display = 'none';
+
+	// console.log('onLoad: ', { groceryList });
+}
+
+/**
+ * save our state (grocery list items) onto local storage for persistence
+ * it is called after each alteration in the groceryList object (because window.onbeforeunload is not always reliable)
+ * @param {Object}	groceryList the main state object of the application
+ */
+function updateLocalStorage(groceryList) {
+	var newLocalDataObj = {};
+	for (var itemName in groceryList) {
+		newLocalDataObj[itemName] = {
+			quantity: Number(groceryList[itemName].quantity),
+			unit: groceryList[itemName].unit,
+			isDone: groceryList[itemName].isDone
+		};
+	}
+
+	localStorage.setItem('groceryList', JSON.stringify(newLocalDataObj));
+}
+
+/**
+ * NOT using this because its not a reliabe event
+ * this event is fired when the window​, the document and its resources are about to be unloaded
+ * thus, this is when we save our state (list items) onto local storage for persistence
+ */
+// window.onbeforeunload = () => {
+// 	console.log('beforeunload: ', { groceryList });
+// 	setTimeout(updateLocalStorage, 0);
+
+// localStorage.setItem('groceryList', JSON.stringify(newLocalDataObj));
+// };
+},{}],2:[function(require,module,exports) {
 'use strict';
 
 require('./styles.scss');
 
-// import sayHello from './utils';
+var _utils = require('./utils');
+
+var _localStorage = require('./localStorage');
 
 console.log('ok!');
 // sayHello();
@@ -185,7 +330,7 @@ console.log('ok!');
 // ## Step 3: Helper Functions
 // ## Step 4: Event Handler Functions
 // ## Step 5: State Handlers
-// ## Step 6: Handle Local Storage (for persistence)
+// ## Step 6: Load and Populate from Local Storage
 
 // # Step 1: DOM Elements
 
@@ -213,7 +358,7 @@ var myDOM = {
 // # Step 2: Global State Variables
 /**
  * will hold all list items with their data and reference to DOM node (for faster access)
- * example => groceryList = {
+ * example ==> groceryList = {
  *  'Banana': {
  *    quantity: 2,
  *    unit: 'dozen',
@@ -246,8 +391,13 @@ var editMode = {
 var createListElement = function createListElement(name, quantity, unit, isDone) {
 	var listElement = document.createElement('li');
 	if (isDone) listElement.classList.add('done-overlay');
-	listElement.innerHTML = getListItemTemplate(name, quantity, unit);
-	addListActionEventListeners(listElement, name);
+
+	listElement.innerHTML = (0, _utils.getListItemTemplate)(name, quantity, unit);
+	(0, _utils.addListActionEventListeners)(listElement, name, {
+		toggleCompleteItem: toggleCompleteItem,
+		changeFormToEditItem: changeFormToEditItem,
+		deleteItem: deleteItem
+	});
 
 	groceryList[name] = {
 		quantity: quantity,
@@ -256,17 +406,6 @@ var createListElement = function createListElement(name, quantity, unit, isDone)
 		isDone: isDone
 	};
 	return listElement;
-};
-
-/**
- * Returns HTML template string; to be inserted into new DOM element
- * @param {string} name Item name
- * @param {number} quantity Item quatity (could be string as well)
- * @param {string} unit Unit in which item is measured
- * @returns HTML_template_string
- */
-var getListItemTemplate = function getListItemTemplate(name, quantity, unit) {
-	return '<span class="list-item">\n\t<span class="list-item-name">' + name + '</span><span class="quantity-unit">' + quantity + ' ' + unit + '</span>\n</span>\n\t<!-- ! add icons -->\n\t<span class="list-action">\n\t<span class="done-btn">Done</span>\n\t<span class="edit-btn">Edit</span>\n\t<span class="del-btn">Del</span>\n\t</span>\n';
 };
 
 /**
@@ -343,23 +482,6 @@ myDOM.form.submitBtn.addEventListener('click', function (event) {
 });
 
 /**
- * helper function for 'createListElement()' to add event listeners
- * @param {DOM_Element} listElement newly created 'li' element so that its buttons could get event listeners
- * @param {string} name ItemName, that acts as key for event handlers
- */
-var addListActionEventListeners = function addListActionEventListeners(listElement, name) {
-	listElement.querySelector('.done-btn').addEventListener('click', function () {
-		toggleCompleteItem(name);
-	});
-	listElement.querySelector('.edit-btn').addEventListener('click', function () {
-		changeFormToEditItem(name);
-	});
-	listElement.querySelector('.del-btn').addEventListener('click', function () {
-		deleteItem(name);
-	});
-};
-
-/**
  * event listen to clear the grocery list
  */
 myDOM.clearListBtn.addEventListener('click', function () {
@@ -393,8 +515,9 @@ var addItem = function addItem() {
 	if (Number(myDOM.itemCounter.innerText) !== 0) myDOM.emptyListPlaceholder.style.display = 'none';
 	changeFormToAddNewItem();
 
-	// console.log('addItem: ', { groceryList });
-	setTimeout(updateLocalStorage, 0);
+	setTimeout(function () {
+		(0, _localStorage.updateLocalStorage)(groceryList);
+	}, 0);
 };
 
 /**
@@ -417,24 +540,28 @@ var editItem = function editItem(prevName) {
 			addItem();
 			deleteItem(prevName);
 
-			// console.log('editItem: ', { groceryList });
-			setTimeout(updateLocalStorage, 0);
+			setTimeout(function () {
+				(0, _localStorage.updateLocalStorage)(groceryList);
+			}, 0);
 			return;
 		}
 		// groceryList[newName] = { ...groceryList[prevName] };
 		groceryList[newName] = Object.assign(groceryList[prevName]);
 		delete groceryList[prevName];
-		// myDOM.itemCounter.innerText = Number(myDOM.itemCounter.innerText) - 1;
 	}
 	groceryList[newName].quantity = Number(newQuantity);
 	groceryList[newName].unit = newUnit;
-	groceryList[newName].element.innerHTML = getListItemTemplate(newName, newQuantity, newUnit);
-	addListActionEventListeners(groceryList[newName].element, newName);
-	// myDOM.itemCounter.innerText = Number(myDOM.itemCounter.innerText) + 1;
+	groceryList[newName].element.innerHTML = (0, _utils.getListItemTemplate)(newName, newQuantity, newUnit);
+	(0, _utils.addListActionEventListeners)(groceryList[newName].element, newName, {
+		toggleCompleteItem: toggleCompleteItem,
+		changeFormToEditItem: changeFormToEditItem,
+		deleteItem: deleteItem
+	});
 
-	// console.log('editItem: ', { groceryList });
 	changeFormToAddNewItem();
-	setTimeout(updateLocalStorage, 0);
+	setTimeout(function () {
+		(0, _localStorage.updateLocalStorage)(groceryList);
+	}, 0);
 };
 
 /**
@@ -449,8 +576,9 @@ var deleteItem = function deleteItem(name) {
 	if (Number(myDOM.itemCounter.innerText) === 0) myDOM.emptyListPlaceholder.style.display = 'block';
 	changeFormToAddNewItem();
 
-	// console.log('deleteItem: ', { groceryList });
-	setTimeout(updateLocalStorage, 0);
+	setTimeout(function () {
+		(0, _localStorage.updateLocalStorage)(groceryList);
+	}, 0);
 };
 
 /**
@@ -467,7 +595,6 @@ var deleteAllItems = function deleteAllItems() {
  * @param {string} name ItemName, acts as the key
  */
 var toggleCompleteItem = function toggleCompleteItem(name) {
-	// console.log(groceryList[name].element);
 	groceryList[name].element.classList.toggle('done-overlay');
 	groceryList[name].isDone = !groceryList[name].isDone;
 	if (groceryList[name].isDone) {
@@ -480,96 +607,21 @@ var toggleCompleteItem = function toggleCompleteItem(name) {
 		if (_counter === 1) myDOM.emptyListPlaceholder.style.display = 'none';
 	}
 
-	// console.log('toggleCompleteItem: ', { groceryList });
-	setTimeout(updateLocalStorage, 0);
+	setTimeout(function () {
+		(0, _localStorage.updateLocalStorage)(groceryList);
+	}, 0);
 };
 
-// # Step 6: Handle Local Storage (for persistence)
-
-/**
- * NOT using this because its not a reliabe event
- * this event is fired when the window​, the document and its resources are about to be unloaded
- * thus, this is when we save our state (list items) onto local storage for persistence
- */
-// window.onbeforeunload = () => {
-// 	console.log('beforeunload: ', { groceryList });
-// 	setTimeout(updateLocalStorage, 0);
-
-// localStorage.setItem('groceryList', JSON.stringify(newLocalDataObj));
-// };
-
-/**
- * Reads our groceryList from local storage and then populate the DOM list with the data
- */
-var readLocalStorageAndPopulateDOM = function readLocalStorageAndPopulateDOM() {
-	var localDataString = localStorage.getItem('groceryList');
-	var localDataObj = JSON.parse(localDataString);
-	// this obj will look something like this
-	// const localDataObj = {
-	// 	'Urad Dal': {
-	// 		quantity: 500,
-	// 		unit: 'gm',
-	// 		isDone: false,
-	// 	},
-	// 	'Banana': {
-	// 		quantity: 2,
-	// 		unit: 'dozen',
-	// 		isDone: true,
-	// 	},
-	// 	'Water Bottle': {
-	// 		quantity: 6,
-	// 		unit: 'nos.',
-	// 		isDone: false,
-	// 	},
-	// 	'Toned Milk': {
-	// 		quantity: 2,
-	// 		unit: 'L',
-	// 		isDone: false,
-	// 	},
-	// };
-
-	// no local storage key found
-	if (!localDataObj) {
-		groceryList = {};
-		myDOM.itemCounter.innerText = 0;
-	}
-
-	// counter to count total items in the list
-	var counter = 0;
-	groceryList = {};
-	for (var itemName in localDataObj) {
-		myDOM.list.append(createListElement(itemName, localDataObj[itemName].quantity, localDataObj[itemName].unit, localDataObj[itemName].isDone));
-		if (!localDataObj[itemName].isDone) counter++;
-	}
-	myDOM.itemCounter.innerText = counter;
-	if (counter > 0) myDOM.emptyListPlaceholder.style.display = 'none';
-
-	// console.log('onLoad: ', { groceryList });
-};
-
-/**
- * save our state (grocery list items) onto local storage for persistence
- * it is called after each alteration in the groceryList object (because window.onbeforeunload is not always reliable)
- */
-var updateLocalStorage = function updateLocalStorage() {
-	var newLocalDataObj = {};
-	for (var itemName in groceryList) {
-		newLocalDataObj[itemName] = {
-			quantity: Number(groceryList[itemName].quantity),
-			unit: groceryList[itemName].unit,
-			isDone: groceryList[itemName].isDone
-		};
-	}
-
-	localStorage.setItem('groceryList', JSON.stringify(newLocalDataObj));
-};
+// # Step 6: Load and Populate from Local Storage
 
 /**
  * this event is fired when the browser load this object
  * thus, this is when we call our state (list items) from local storage into global state variable
  */
-window.onload = readLocalStorageAndPopulateDOM;
-},{"./styles.scss":6}],6:[function(require,module,exports) {
+window.onload = function () {
+	(0, _localStorage.readLocalStorageAndPopulateDOM)(myDOM, groceryList, createListElement);
+};
+},{"./styles.scss":6,"./utils":16,"./localStorage":19}],7:[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 
@@ -598,7 +650,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = '' || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + '55677' + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + '54939' + '/');
   ws.onmessage = function (event) {
     var data = JSON.parse(event.data);
 
@@ -739,5 +791,5 @@ function hmrAccept(bundle, id) {
     return hmrAccept(global.parcelRequire, id);
   });
 }
-},{}]},{},[6,4], null)
+},{}]},{},[7,2], null)
 //# sourceMappingURL=/src.964205e4.map
