@@ -1,10 +1,16 @@
 import './styles.scss';
-import sayHello from './utils';
+// import sayHello from './utils';
 
 console.log('ok!');
 // sayHello();
 
-// import { createListElement } from './utils';
+// # 6 Step procedure:
+// ## Step 1: DOM Elements
+// ## Step 2: Global State Variables
+// ## Step 3: Helper Functions
+// ## Step 4: Event Handler Functions
+// ## Step 5: State Handlers
+// ## Step 6: Handle Local Storage (for persistence)
 
 // # Step 1: DOM Elements
 
@@ -26,13 +32,27 @@ const myDOM = {
 	itemCounter: document.querySelector('#item-counter'),
 	list: document.querySelector('.list'),
 	emptyListPlaceholder: document.querySelector('.empty-list-placeholder'),
+	clearListBtn: document.querySelector('#clear-btn'),
 };
 
 // # Step 2: Global State Variables
 /**
  * will hold all list items with their data and reference to DOM node (for faster access)
+ * example => groceryList = {
+ *  'Banana': {
+ *    quantity: 2,
+ *    unit: 'dozen',
+ *    isDone: false,
+ *    element: DOM_element reference
+ *  }
+ * }
  */
 let groceryList = {};
+
+/**
+ * to check if form is in add or edit mode
+ * and stores original name of the product if its in edit mode
+ */
 let editMode = {
 	status: false,
 	prevName: '',
@@ -61,18 +81,6 @@ const createListElement = (name, quantity, unit, isDone) => {
 		isDone,
 	};
 	return listElement;
-};
-
-const addListActionEventListeners = (listElement, name) => {
-	listElement.querySelector('.done-btn').addEventListener('click', () => {
-		toggleCompleteItem(name);
-	});
-	listElement.querySelector('.edit-btn').addEventListener('click', () => {
-		changeFormToEditItem(name);
-	});
-	listElement.querySelector('.del-btn').addEventListener('click', () => {
-		deleteItem(name);
-	});
 };
 
 /**
@@ -153,6 +161,10 @@ const validateInput = () => {
 
 // # Step 4: Event Handler Functions
 
+/**
+ * event listener for form submission
+ * based on the state of the app, it calls addItem() or editItem()
+ */
 // myDOM.form.formElement.addEventListener('submit', (event) => {
 myDOM.form.submitBtn.addEventListener('click', (event) => {
 	console.log('from submit');
@@ -164,16 +176,38 @@ myDOM.form.submitBtn.addEventListener('click', (event) => {
 	}
 });
 
-document.querySelector('#clear-btn').addEventListener('click', () => {
+/**
+ * helper function for 'createListElement()' to add event listeners
+ * @param {DOM_Element} listElement newly created 'li' element so that its buttons could get event listeners
+ * @param {string} name ItemName, that acts as key for event handlers
+ */
+const addListActionEventListeners = (listElement, name) => {
+	listElement.querySelector('.done-btn').addEventListener('click', () => {
+		toggleCompleteItem(name);
+	});
+	listElement.querySelector('.edit-btn').addEventListener('click', () => {
+		changeFormToEditItem(name);
+	});
+	listElement.querySelector('.del-btn').addEventListener('click', () => {
+		deleteItem(name);
+	});
+};
+
+/**
+ * event listen to clear the grocery list
+ */
+myDOM.clearListBtn.addEventListener('click', () => {
 	deleteAllItems();
 });
+
+// # Step 5: State Handlers
 
 /**
  * Appends (increments) items based on the form data
  * @param {DOM_event} event onClick event when user wants to add a new item to the list
  */
 const addItem = () => {
-	if (event) event.preventDefault();
+	// if (event) event.preventDefault();
 	if (!validateInput()) {
 		return;
 	}
@@ -239,7 +273,6 @@ const editItem = (prevName) => {
 	// myDOM.itemCounter.innerText = Number(myDOM.itemCounter.innerText) + 1;
 
 	// console.log('editItem: ', { groceryList });
-
 	changeFormToAddNewItem();
 	setTimeout(updateLocalStorage, 0);
 };
@@ -262,6 +295,9 @@ const deleteItem = (name) => {
 	setTimeout(updateLocalStorage, 0);
 };
 
+/**
+ * Delete all items in the grocery list (and from the DOM as well)
+ */
 const deleteAllItems = () => {
 	for (let itemName in groceryList) {
 		deleteItem(itemName);
@@ -284,28 +320,19 @@ const toggleCompleteItem = (name) => {
 	setTimeout(updateLocalStorage, 0);
 };
 
+// # Step 6: Handle Local Storage (for persistence)
+
 /**
+ * NOT using this because its not a reliabe event
  * this event is fired when the window​, the document and its resources are about to be unloaded
  * thus, this is when we save our state (list items) onto local storage for persistence
  */
 // window.onbeforeunload = () => {
 // 	console.log('beforeunload: ', { groceryList });
-
 // 	setTimeout(updateLocalStorage, 0);
-// const newLocalDataObj = {};
-// const itemNameEle = document.querySelectorAll('.list-item-name');
-// itemNameEle.forEach((ele) => {
-// 	newLocalDataObj[ele.innerText] = {
-// 		quantity: Number(groceryList[ele.innerText].quantity),
-// 		unit: groceryList[ele.innerText].unit,
-// 		isDone: groceryList[ele.innerText].isDone,
-// 	};
-// });
 
 // localStorage.setItem('groceryList', JSON.stringify(newLocalDataObj));
 // };
-
-// # Step 5: Handle Local Storage (for persistence)
 
 /**
  * Reads our groceryList from local storage and then populate the DOM list with the data

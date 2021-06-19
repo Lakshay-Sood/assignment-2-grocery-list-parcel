@@ -169,31 +169,23 @@ module.exports = reloadCSS;
 var reloadCSS = require('_css_loader');
 module.hot.dispose(reloadCSS);
 module.hot.accept(reloadCSS);
-},{"_css_loader":12}],7:[function(require,module,exports) {
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
-exports.default = sayHello;
-function sayHello() {
-	alert('hello');
-}
-},{}],4:[function(require,module,exports) {
+},{"_css_loader":12}],4:[function(require,module,exports) {
 'use strict';
 
 require('./styles.scss');
 
-var _utils = require('./utils');
-
-var _utils2 = _interopRequireDefault(_utils);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+// import sayHello from './utils';
 
 console.log('ok!');
 // sayHello();
 
-// import { createListElement } from './utils';
+// # 6 Step procedure:
+// ## Step 1: DOM Elements
+// ## Step 2: Global State Variables
+// ## Step 3: Helper Functions
+// ## Step 4: Event Handler Functions
+// ## Step 5: State Handlers
+// ## Step 6: Handle Local Storage (for persistence)
 
 // # Step 1: DOM Elements
 
@@ -214,14 +206,28 @@ var myDOM = {
 	// listHeadWishlist: document.querySelector('.list-heading > h2:nth-child(2)'),
 	itemCounter: document.querySelector('#item-counter'),
 	list: document.querySelector('.list'),
-	emptyListPlaceholder: document.querySelector('.empty-list-placeholder')
+	emptyListPlaceholder: document.querySelector('.empty-list-placeholder'),
+	clearListBtn: document.querySelector('#clear-btn')
 };
 
 // # Step 2: Global State Variables
 /**
  * will hold all list items with their data and reference to DOM node (for faster access)
+ * example => groceryList = {
+ *  'Banana': {
+ *    quantity: 2,
+ *    unit: 'dozen',
+ *    isDone: false,
+ *    element: DOM_element reference
+ *  }
+ * }
  */
 var groceryList = {};
+
+/**
+ * to check if form is in add or edit mode
+ * and stores original name of the product if its in edit mode
+ */
 var editMode = {
 	status: false,
 	prevName: ''
@@ -250,18 +256,6 @@ var createListElement = function createListElement(name, quantity, unit, isDone)
 		isDone: isDone
 	};
 	return listElement;
-};
-
-var addListActionEventListeners = function addListActionEventListeners(listElement, name) {
-	listElement.querySelector('.done-btn').addEventListener('click', function () {
-		toggleCompleteItem(name);
-	});
-	listElement.querySelector('.edit-btn').addEventListener('click', function () {
-		changeFormToEditItem(name);
-	});
-	listElement.querySelector('.del-btn').addEventListener('click', function () {
-		deleteItem(name);
-	});
 };
 
 /**
@@ -333,6 +327,10 @@ var validateInput = function validateInput() {
 
 // # Step 4: Event Handler Functions
 
+/**
+ * event listener for form submission
+ * based on the state of the app, it calls addItem() or editItem()
+ */
 // myDOM.form.formElement.addEventListener('submit', (event) => {
 myDOM.form.submitBtn.addEventListener('click', function (event) {
 	console.log('from submit');
@@ -344,16 +342,38 @@ myDOM.form.submitBtn.addEventListener('click', function (event) {
 	}
 });
 
-document.querySelector('#clear-btn').addEventListener('click', function () {
+/**
+ * helper function for 'createListElement()' to add event listeners
+ * @param {DOM_Element} listElement newly created 'li' element so that its buttons could get event listeners
+ * @param {string} name ItemName, that acts as key for event handlers
+ */
+var addListActionEventListeners = function addListActionEventListeners(listElement, name) {
+	listElement.querySelector('.done-btn').addEventListener('click', function () {
+		toggleCompleteItem(name);
+	});
+	listElement.querySelector('.edit-btn').addEventListener('click', function () {
+		changeFormToEditItem(name);
+	});
+	listElement.querySelector('.del-btn').addEventListener('click', function () {
+		deleteItem(name);
+	});
+};
+
+/**
+ * event listen to clear the grocery list
+ */
+myDOM.clearListBtn.addEventListener('click', function () {
 	deleteAllItems();
 });
+
+// # Step 5: State Handlers
 
 /**
  * Appends (increments) items based on the form data
  * @param {DOM_event} event onClick event when user wants to add a new item to the list
  */
 var addItem = function addItem() {
-	if (event) event.preventDefault();
+	// if (event) event.preventDefault();
 	if (!validateInput()) {
 		return;
 	}
@@ -413,7 +433,6 @@ var editItem = function editItem(prevName) {
 	// myDOM.itemCounter.innerText = Number(myDOM.itemCounter.innerText) + 1;
 
 	// console.log('editItem: ', { groceryList });
-
 	changeFormToAddNewItem();
 	setTimeout(updateLocalStorage, 0);
 };
@@ -434,6 +453,9 @@ var deleteItem = function deleteItem(name) {
 	setTimeout(updateLocalStorage, 0);
 };
 
+/**
+ * Delete all items in the grocery list (and from the DOM as well)
+ */
 var deleteAllItems = function deleteAllItems() {
 	for (var itemName in groceryList) {
 		deleteItem(itemName);
@@ -454,28 +476,19 @@ var toggleCompleteItem = function toggleCompleteItem(name) {
 	setTimeout(updateLocalStorage, 0);
 };
 
+// # Step 6: Handle Local Storage (for persistence)
+
 /**
+ * NOT using this because its not a reliabe event
  * this event is fired when the window​, the document and its resources are about to be unloaded
  * thus, this is when we save our state (list items) onto local storage for persistence
  */
 // window.onbeforeunload = () => {
 // 	console.log('beforeunload: ', { groceryList });
-
 // 	setTimeout(updateLocalStorage, 0);
-// const newLocalDataObj = {};
-// const itemNameEle = document.querySelectorAll('.list-item-name');
-// itemNameEle.forEach((ele) => {
-// 	newLocalDataObj[ele.innerText] = {
-// 		quantity: Number(groceryList[ele.innerText].quantity),
-// 		unit: groceryList[ele.innerText].unit,
-// 		isDone: groceryList[ele.innerText].isDone,
-// 	};
-// });
 
 // localStorage.setItem('groceryList', JSON.stringify(newLocalDataObj));
 // };
-
-// # Step 5: Handle Local Storage (for persistence)
 
 /**
  * Reads our groceryList from local storage and then populate the DOM list with the data
@@ -548,7 +561,7 @@ var updateLocalStorage = function updateLocalStorage() {
  * thus, this is when we call our state (list items) from local storage into global state variable
  */
 window.onload = readLocalStorageAndPopulateDOM;
-},{"./styles.scss":6,"./utils":7}],16:[function(require,module,exports) {
+},{"./styles.scss":6}],6:[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 
@@ -577,7 +590,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = '' || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + '50796' + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + '55677' + '/');
   ws.onmessage = function (event) {
     var data = JSON.parse(event.data);
 
@@ -718,5 +731,5 @@ function hmrAccept(bundle, id) {
     return hmrAccept(global.parcelRequire, id);
   });
 }
-},{}]},{},[16,4], null)
+},{}]},{},[6,4], null)
 //# sourceMappingURL=/src.964205e4.map

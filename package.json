@@ -6,7 +6,6 @@
 	"scripts": {
 		"dev": "parcel index.html",
 		"build": "parcel build index.html",
-		"push-gh-pages": "push-dir --dir=dist --branch=gh-pages --cleanup --verbose",
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
 	"keywords": [],

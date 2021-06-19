@@ -83,96 +83,97 @@ section#add-edit-item form {
 ul {
   list-style: none; }
 
-section#grocery-wish-list .list-heading {
-  display: flex; }
-  section#grocery-wish-list .list-heading h2 {
-    flex-grow: 1;
-    text-align: center; }
-    section#grocery-wish-list .list-heading h2:nth-child(1) {
-      background-color: rgba(146, 240, 89, 0.4);
-      border: 2px solid #92f059; }
-    section#grocery-wish-list .list-heading h2:nth-child(2) {
-      background-color: rgba(190, 124, 240, 0.4);
-      border: 2px solid #be7cf0; }
-    section#grocery-wish-list .list-heading h2 #item-counter {
-      font-size: 0.7em;
-      background-color: white;
-      padding: 0.2em 0.5em;
-      border: 2px solid;
-      border-color: inherit; }
-  section#grocery-wish-list .list-heading #clear-btn {
-    padding: 1em;
-    padding-top: 1.2em;
-    background-color: #8888dd;
-    border-radius: 5px;
-    border-bottom-left-radius: 0;
-    border-bottom-right-radius: 0;
-    cursor: pointer;
-    transition: all 0.1s ease-in;
-    background-color: #e96a6a; }
-    section#grocery-wish-list .list-heading #clear-btn:hover {
-      background-color: #ff9090; }
-
-section#grocery-wish-list .list {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 1em;
-  background-color: white;
-  border: 2px solid #92f059;
-  border-radius: 5px;
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
-  margin-top: -2px;
-  padding: 1.5em;
-  max-height: 80vh;
-  overflow-y: scroll; }
-  section#grocery-wish-list .list li {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 0.5em;
-    background-color: rgba(146, 240, 89, 0.4);
-    padding: 1em;
-    border-radius: 5px;
-    transition: all 0.1s ease-out; }
-    section#grocery-wish-list .list li:hover {
-      background-color: rgba(146, 240, 89, 0.6); }
-    section#grocery-wish-list .list li.done-overlay {
-      background-color: #dadada;
-      text-decoration: line-through; }
-    section#grocery-wish-list .list li .list-item {
-      display: flex;
-      flex-direction: column;
+section#grocery-wish-list {
+  margin-bottom: 2em; }
+  section#grocery-wish-list .list-heading {
+    display: flex; }
+    section#grocery-wish-list .list-heading h2 {
       flex-grow: 1;
-      width: min-content; }
-      section#grocery-wish-list .list li .list-item .list-item-name {
-        max-height: 100px;
-        overflow-y: scroll;
-        margin-bottom: 0.2em;
-        font-size: 1.3em; }
-    section#grocery-wish-list .list li .list-action {
-      display: flex; }
-      section#grocery-wish-list .list li .list-action span {
-        margin: 1em 0.2em;
-        padding: 1em;
-        padding-top: 1.2em;
-        background-color: #8888dd;
-        border-radius: 5px;
-        cursor: pointer;
-        transition: all 0.1s ease-in; }
-        section#grocery-wish-list .list li .list-action span.done-btn {
-          background-color: #dce96a; }
-          section#grocery-wish-list .list li .list-action span.done-btn:hover {
-            background-color: #f2ff81; }
-        section#grocery-wish-list .list li .list-action span.edit-btn {
-          background-color: #6e86f1; }
-          section#grocery-wish-list .list li .list-action span.edit-btn:hover {
-            background-color: #9fb0ff; }
-        section#grocery-wish-list .list li .list-action span.del-btn {
-          background-color: #e96a6a; }
-          section#grocery-wish-list .list li .list-action span.del-btn:hover {
-            background-color: #ff9090; }
+      text-align: center; }
+      section#grocery-wish-list .list-heading h2:nth-child(1) {
+        background-color: rgba(146, 240, 89, 0.4);
+        border: 2px solid #92f059; }
+      section#grocery-wish-list .list-heading h2:nth-child(2) {
+        background-color: rgba(190, 124, 240, 0.4);
+        border: 2px solid #be7cf0; }
+      section#grocery-wish-list .list-heading h2 #item-counter {
+        font-size: 0.7em;
+        background-color: white;
+        padding: 0.2em 0.5em;
+        border: 2px solid;
+        border-color: inherit; }
+    section#grocery-wish-list .list-heading #clear-btn {
+      padding: 1em;
+      padding-top: 1.2em;
+      background-color: #8888dd;
+      border-radius: 5px;
+      border-bottom-left-radius: 0;
+      border-bottom-right-radius: 0;
+      cursor: pointer;
+      transition: all 0.1s ease-in;
+      background-color: #e96a6a; }
+      section#grocery-wish-list .list-heading #clear-btn:hover {
+        background-color: #ff9090; }
+  section#grocery-wish-list .list {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    background-color: white;
+    border: 2px solid #92f059;
+    border-radius: 5px;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    margin-top: -2px;
+    padding: 1.5em;
+    max-height: 80vh;
+    overflow-y: scroll; }
+    section#grocery-wish-list .list li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5em;
+      background-color: rgba(146, 240, 89, 0.4);
+      padding: 1em;
+      border-radius: 5px;
+      transition: all 0.1s ease-out; }
+      section#grocery-wish-list .list li:hover {
+        background-color: rgba(146, 240, 89, 0.6); }
+      section#grocery-wish-list .list li.done-overlay {
+        background-color: #dadada;
+        text-decoration: line-through; }
+      section#grocery-wish-list .list li .list-item {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+        width: min-content; }
+        section#grocery-wish-list .list li .list-item .list-item-name {
+          max-height: 100px;
+          overflow-y: scroll;
+          margin-bottom: 0.5em;
+          font-size: 1.3em; }
+      section#grocery-wish-list .list li .list-action {
+        display: flex; }
+        section#grocery-wish-list .list li .list-action span {
+          margin: 0 0.2em;
+          padding: 1em;
+          padding-top: 1.2em;
+          background-color: #8888dd;
+          border-radius: 5px;
+          cursor: pointer;
+          transition: all 0.1s ease-in; }
+          section#grocery-wish-list .list li .list-action span.done-btn {
+            background-color: #dce96a; }
+            section#grocery-wish-list .list li .list-action span.done-btn:hover {
+              background-color: #f2ff81; }
+          section#grocery-wish-list .list li .list-action span.edit-btn {
+            background-color: #6e86f1; }
+            section#grocery-wish-list .list li .list-action span.edit-btn:hover {
+              background-color: #9fb0ff; }
+          section#grocery-wish-list .list li .list-action span.del-btn {
+            background-color: #e96a6a; }
+            section#grocery-wish-list .list li .list-action span.del-btn:hover {
+              background-color: #ff9090; }
 
 @media screen and (max-width: 1120px) {
   .container {
