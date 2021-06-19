@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link
+			href="https://fonts.googleapis.com/css2?family=Carter+One&family=Josefin+Sans&display=swap"
+			rel="stylesheet"
+		/>
+		<!-- <link rel="stylesheet" href="./css/style.css" /> -->
+		<script defer src="./src/index.js"></script>
+		<link rel="preconnect" href="https://fonts.gstatic.com" />
+		<title>Assignment 2 | Grocery List</title>
+	</head>
+	<body>
+		<div id="app">
+			<div class="container">
+				<section id="add-edit-item">
+					<h2>New Item</h2>
+					<!-- <form onsubmit="addItem(event)"> -->
+					<form>
+						<!-- Item name -->
+						<label for="item-name">Item Name</label>
+						<input
+							type="text"
+							name="item-name"
+							id="item-name"
+							required
+							autofocus
+						/>
+
+						<!-- Quantity -->
+						<label for="item-quantity">Quantity</label>
+						<span class="quantity-box">
+							<!-- ! add svg icon -->
+							<!-- <span>-</span> -->
+							<input
+								type="number"
+								name="item-quantity"
+								id="item-quantity"
+								required
+								min="1"
+							/>
+							<!-- <span class="quantity-counter">0</span> -->
+							<!-- ! add svg icon -->
+							<!-- <span>+</span> -->
+
+							<!-- Unit -->
+							<select name="item-unit" id="item-unit" required>
+								<option value="not-selected">--Select Unit--</option>
+								<option value="no.">Number</option>
+								<option value="mL">mL (Millilitre)</option>
+								<option value="L">L (Litre)</option>
+								<option value="g">g (Gram)</option>
+								<option value="Kg">Kg (Kilogram)</option>
+								<option value="Dozen">Dozen</option>
+							</select>
+						</span>
+
+						<div class="add-buttons">
+							<!-- Grocery Btn -->
+							<button class="grocery-btn">Add to Grocery List</button>
+
+							<!-- Was trying to go for 2 lists with interoperatability but the code got very messy as all of it was being implements in vanilla js. So I have restricted myself to this single list for now-->
+							<!-- Figma Basic Layout Link: https://www.figma.com/file/2BKBAv3pUudlMVAaOsiQxN/Sprinklr?node-id=0%3A1 -->
+
+							<!-- Wishlist Btn -->
+							<!-- <button class="wishlist-btn">Add to Wishlist</button> -->
+						</div>
+					</form>
+				</section>
+				<section id="grocery-wish-list">
+					<div class="list-heading">
+						<h2>Grocery List <span id="item-counter">0</span></h2>
+						<!-- <h2>Wishlist <span>1</span></h2> -->
+						<span id="clear-btn">Clear</span>
+					</div>
+					<ul class="list">
+						<p class="empty-list-placeholder" style="text-align: center">
+							The list is empty. Go add some items!
+						</p>
+						<!-- 
+							this is the template string that is used
+							<li>
+								<span class="list-item">
+									<span class="list-item-name">${name}</span>
+									<span class="quantity-unit">${quantity} ${unit}</span>
+								</span>
+								<span class="list-action">
+									<span class="done-btn" onClick="completedItem('${name}')">Done</span>
+									<span class="edit-btn" onclick="renderEditItemForm('${name}')">Edit</span>
+									<span class="del-btn" onclick="deleteItem('${name}')">Del</span>
+								</span>
+							</li>
+
+							
+							<li>
+							<span class="list-item">
+								<span>Sample (Static) - Urad Dal</span><span>500 g</span>
+							</span>
+							<span class="list-action">
+								<span>Done</span><span>Edit</span><span>Del</span>
+							</span>
+						</li>
+						<li>
+							<span class="list-item">
+								<span>Sample (Static) - Banana</span><span>3 dozen</span>
+							</span>
+							<span class="list-action">
+								<span class="done-btn">Done</span>
+								<span class="edit-btn">Edit</span>
+								<span class="del-btn">Del</span>
+							</span>
+						</li>
+						<li>
+							<span class="list-item">
+								<span>Sample (Static) - Toned Milk</span><span>2 L</span>
+							</span>
+							<span class="list-action">
+								<span>Done</span><span>Edit</span><span>Del</span>
+							</span>
+						</li> -->
+					</ul>
+				</section>
+			</div>
+		</div>
+	</body>
+</html>
